@@ -34,6 +34,16 @@ void KalmanFilter::Update(const VectorXd &z) {
   TODO:
     * update the state by using Kalman Filter equations
   */
+  VectorXd y = (z - H_ * x_);
+  MatrixXd S = H_ * P_ * H_.transpose() + R_;
+  MatrixXd K = P_ * H_.transpose() * S.inverse();
+  MatrixXd I = MatrixXd::Identity(2, 2);
+  
+  x_ = x_ + (K * y);
+  P_ = (I - K * H_) * P_;
+  
+  x_ = F_ * x_;
+  P_ = F_ * P_ * F_.transpose();
 }
 
 void KalmanFilter::UpdateEKF(const VectorXd &z) {
@@ -41,4 +51,30 @@ void KalmanFilter::UpdateEKF(const VectorXd &z) {
   TODO:
     * update the state by using Extended Kalman Filter equations
   */
+  // Convert measurements from cartesian to polar
+  MatrixXd Hj(3, 4);
+  float px =  x_(0);
+  float py = x_(1);
+  float vx = x_(2);
+  float vy = x_(3);
+  
+  // Avoids repeated calculations
+  float c1 = px*px + py*py;
+  float c2 = sqrt(c1);
+  float c3 = (c1*c2);
+  
+  VectorXd polar;
+  polar << c2, atan2(py, px) + 2*M_PI, c1/c2;
+  
+  
+  MatrixXd S = H_ * P_ * H_.transpose() + R_;
+  MatrixXd K = P_ * H_.transpose() * S.inverse();
+  MatrixXd I = MatrixXd::Identity(2, 2);
+  
+  VectorXd y = (z - polar);
+  x_ = x_ + (K * y);
+  P_ = (I - K * H_) * P_;
+  
+  x_ = F_ * x_;
+  P_ = F_ * P_ * F_.transpose();
 }
