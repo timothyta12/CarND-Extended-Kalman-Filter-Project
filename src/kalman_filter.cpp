@@ -50,18 +50,16 @@ void KalmanFilter::UpdateEKF(const VectorXd &z) {
   */
   // Convert measurements from cartesian to polar
   MatrixXd Hj(3, 4);
-  float px =  x_(0);
+  float px = x_(0);
   float py = x_(1);
-  float vx = x_(2);
-  float vy = x_(3);
   
-  // Avoids repeated calculations
-  float c1 = px*px + py*py;
-  float c2 = sqrt(c1);
-  float c3 = (c1*c2);
+  // polar measurements
+  float rho = sqrt(px*px + py*py);
+  float phi = atan2(py, px);
+  float rho_dot = px*px + py*py / rho;
   
   VectorXd polar;
-  polar << c2, atan2(py, px) + 2*M_PI, c1/c2;
+  polar << rho, phi + 2*M_PI, rho_dot;
   
   
   MatrixXd S = H_ * P_ * H_.transpose() + R_;
