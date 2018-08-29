@@ -68,13 +68,21 @@ void KalmanFilter::UpdateEKF(const VectorXd &z) {
   }
   
   VectorXd polar(3);
-  polar << rho, phi + 2*M_PI, rho_dot;
+  polar << rho, phi, rho_dot;
   
   MatrixXd S = H_ * P_ * H_.transpose() + R_;
   MatrixXd K = P_ * H_.transpose() * S.inverse();
   MatrixXd I = MatrixXd::Identity(x_.size(), x_.size());
   
   VectorXd y = (z - polar);
+  // Normalize Angle
+  if (y(1) > M_PI) {
+    y(1) -= 2*M_PI;
+  }
+  if (y(1) < -M_PI) {
+    y(1) += 2*M_PI;
+  }
+  
   x_ = x_ + (K * y);
   P_ = (I - K * H_) * P_;
 }
