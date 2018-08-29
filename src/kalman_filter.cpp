@@ -65,7 +65,7 @@ void KalmanFilter::UpdateEKF(const VectorXd &z) {
     rho_dot = px*px + py*py / rho;
   }
   
-  VectorXd polar;
+  VectorXd polar(3);
   polar << rho, phi + 2*M_PI, rho_dot;
   
   MatrixXd S = H_ * P_ * H_.transpose() + R_;
