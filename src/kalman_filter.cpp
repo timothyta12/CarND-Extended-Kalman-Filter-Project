@@ -52,6 +52,8 @@ void KalmanFilter::UpdateEKF(const VectorXd &z) {
   MatrixXd Hj(3, 4);
   float px = x_(0);
   float py = x_(1);
+  float vx = x_(2);
+  float vy = x_(3);
   
   // polar measurements
   float rho = sqrt(px*px + py*py);
@@ -62,7 +64,7 @@ void KalmanFilter::UpdateEKF(const VectorXd &z) {
     rho_dot = 0;
   }
   else {
-    rho_dot = px*px + py*py / rho;
+    rho_dot = (px*vx + py*vy) / rho;
   }
   
   VectorXd polar(3);
